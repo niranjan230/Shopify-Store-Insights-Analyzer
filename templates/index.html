@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Store Insights Analyzer</title>
+    <!-- Using Bootstrap 5 for the UI - much better than writing custom CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header section -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-store me-3"></i>
+                    Shopify Store Insights Analyzer
+                </h1>
+                <p class="lead text-muted">
+                    Enter any Shopify store URL to instantly extract comprehensive brand intelligence
+                </p>
+            </div>
+        </div>
+
+        <!-- API Testing Form -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-search me-2"></i>
+                            Analyze Shopify Store
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="analyzeForm">
+                            <div class="mb-4">
+                                <label for="websiteUrl" class="form-label">
+                                    <strong>Website URL</strong>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-link"></i>
+                                    </span>
+                                    <input 
+                                        type="url" 
+                                        class="form-control" 
+                                        id="websiteUrl" 
+                                        placeholder="https://example-store.myshopify.com or custom domain"
+                                        required
+                                    >
+                                </div>
+                                <div class="form-text">
+                                    Enter a Shopify store URL. Examples: memy.co.in, hairoriginals.com
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                <button type="submit" class="btn btn-primary btn-lg" id="analyzeBtn">
+                                    <i class="fas fa-analytics me-2"></i>
+                                    Analyze Store
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-lg" id="validateBtn">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Validate URL
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="row justify-content-center d-none">
+            <div class="col-md-6 text-center">
+                <div class="card border-info">
+                    <div class="card-body">
+                        <div class="spinner-border text-primary me-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h5 class="mb-0">Analyzing store... This may take a few moments</h5>
+                        <p class="text-muted mt-2">Extracting product data, policies, FAQs, and more</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="d-none">
+            <!-- Success Alert -->
+            <div id="successAlert" class="alert alert-success d-none">
+                <h4 class="alert-heading">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Analysis Complete!
+                </h4>
+                <p class="mb-0">Successfully extracted comprehensive brand intelligence from the Shopify store.</p>
+            </div>
+
+            <!-- Error Alert -->
+            <div id="errorAlert" class="alert alert-danger d-none">
+                <h4 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Analysis Failed
+                </h4>
+                <p id="errorMessage" class="mb-0"></p>
+            </div>
+
+            <!-- Analysis Results -->
+            <div id="analysisResults" class="d-none">
+                <!-- Brand Overview -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-building me-2"></i>
+                            Brand Overview
+                        </h3>
+                    </div>
+                    <div class="card-body" id="brandOverview">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Metrics Dashboard -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Analysis Metrics
+                        </h3>
+                    </div>
+                    <div class="card-body" id="metricsContent">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-box me-2"></i>
+                            Product Catalog
+                        </h3>
+                    </div>
+                    <div class="card-body" id="productsContent">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Contact & Social -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">
+                                    <i class="fas fa-address-book me-2"></i>
+                                    Contact Information
+                                </h3>
+                            </div>
+                            <div class="card-body" id="contactContent">
+                                <!-- Content will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">
+                                    <i class="fas fa-share-alt me-2"></i>
+                                    Social Media
+                                </h3>
+                            </div>
+                            <div class="card-body" id="socialContent">
+                                <!-- Content will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Policies & FAQs -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Policies
+                                </h3>
+                            </div>
+                            <div class="card-body" id="policiesContent">
+                                <!-- Content will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">
+                                    <i class="fas fa-question-circle me-2"></i>
+                                    FAQs
+                                </h3>
+                            </div>
+                            <div class="card-body" id="faqsContent">
+                                <!-- Content will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Links -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-external-link-alt me-2"></i>
+                            Important Links
+                        </h3>
+                    </div>
+                    <div class="card-body" id="linksContent">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
